@@ -1,0 +1,42 @@
+{
+    "name": "responsive-sk/slim4-session",
+    "description": "Enhanced session management for Slim 4 with extended interface and type safety",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["slim", "session", "php", "middleware", "type-safe"],
+    "authors": [
+        {
+            "name": "Responsive SK",
+            "email": "info@responsive.sk"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "odan/session": "^6.1",
+        "psr/log": "^3.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^10.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "ResponsiveSk\\Slim4Session\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ResponsiveSk\\Slim4Session\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "stan": "phpstan analyse src --level=max"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
