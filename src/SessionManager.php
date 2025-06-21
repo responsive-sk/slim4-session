@@ -4,22 +4,71 @@ declare(strict_types=1);
 
 namespace ResponsiveSk\Slim4Session;
 
-use Odan\Session\SessionManagerInterface;
-
 /**
  * Session Manager
  * 
- * Wrapper around Odan\Session\SessionManagerInterface that implements
- * our extended SessionInterface with additional methods.
+ * Complete session management implementation without external dependencies.
  */
 final class SessionManager implements SessionInterface
 {
-    public function __construct(
-        private readonly SessionManagerInterface $sessionManager
-    ) {
+    private FlashManager $flashManager;
+
+    public function __construct()
+    {
+        $this->flashManager = new FlashManager();
     }
 
-    // === Extended methods (missing from Odan\Session) ===
+    // === Core Session Methods ===
+
+    public function set(string $key, mixed $value): void
+    {
+        if (!$this->isStarted()) {
+            $this->start();
+        }
+        $_SESSION[$key] = $value;
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        if (!$this->isStarted()) {
+            return $default;
+        }
+        return $_SESSION[$key] ?? $default;
+    }
+
+    public function remove(string $key): void
+    {
+        if ($this->isStarted()) {
+            unset($_SESSION[$key]);
+        }
+    }
+
+    public function has(string $key): bool
+    {
+        return $this->isStarted() && isset($_SESSION[$key]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function all(): array
+    {
+        if (!$this->isStarted()) {
+            return [];
+        }
+
+        /** @var array<string, mixed> */
+        return $_SESSION;
+    }
+
+    public function clear(): void
+    {
+        if ($this->isStarted()) {
+            $_SESSION = [];
+        }
+    }
+
+    // === Session Lifecycle Methods ===
 
     public function isStarted(): bool
     {
@@ -31,7 +80,6 @@ final class SessionManager implements SessionInterface
         if ($this->isStarted()) {
             return true;
         }
-
         return session_start();
     }
 
@@ -80,143 +128,6 @@ final class SessionManager implements SessionInterface
         return $name !== false ? $name : '';
     }
 
-    public function has(string $key): bool
-    {
-        // Use direct $_SESSION access since Odan interface doesn't have has() method
-        return isset($_SESSION[$key]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function all(): array
-    {
-        /** @var array<string, mixed> $session */
-        $session = $_SESSION ?? [];
-        return $session;
-    }
-
-    public function clear(): void
-    {
-        // Use direct $_SESSION clearing since Odan interface doesn't have clear() method
-        $_SESSION = [];
-    }
-
-    public function flash(string $key, mixed $value): void
-    {
-        // Use direct flash storage since getFlash() method may not exist
-        if (!isset($_SESSION['__flash']) || !is_array($_SESSION['__flash'])) {
-            $_SESSION['__flash'] = [];
-        }
-        /** @var array<string, mixed> $flashData */
-        $flashData = $_SESSION['__flash'];
-        $flashData[$key] = $value;
-        $_SESSION['__flash'] = $flashData;
-    }
-
-    public function getFlash(): \Odan\Session\FlashInterface
-    {
-        // This method requires Odan Flash interface - implement basic version
-        throw new \RuntimeException('Flash interface not available. Use flash() method instead.');
-    }
-
-    public function getFlashMessage(string $key, mixed $default = null): mixed
-    {
-        $flashData = $_SESSION['__flash'] ?? [];
-        if (!is_array($flashData)) {
-            return $default;
-        }
-        /** @var array<string, mixed> $typedFlashData */
-        $typedFlashData = $flashData;
-        return $typedFlashData[$key] ?? $default;
-    }
-
-    public function hasFlash(string $key): bool
-    {
-        $flashData = $_SESSION['__flash'] ?? [];
-        if (!is_array($flashData)) {
-            return false;
-        }
-        /** @var array<string, mixed> $typedFlashData */
-        $typedFlashData = $flashData;
-        return isset($typedFlashData[$key]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getFlashBag(): array
-    {
-        // Get all flash data from session
-        $flashData = $_SESSION['__flash'] ?? [];
-        /** @var array<string, mixed> $typedFlashData */
-        $typedFlashData = is_array($flashData) ? $flashData : [];
-        return $typedFlashData;
-    }
-
-    // === Delegated methods from Odan\Session\SessionInterface ===
-
-    public function set(string $key, mixed $value): void
-    {
-        // Use direct $_SESSION access if Odan methods not available
-        if (method_exists($this->sessionManager, 'set')) {
-            $this->sessionManager->set($key, $value);
-        } else {
-            $_SESSION[$key] = $value;
-        }
-
-        // Debug logging
-        error_log("SessionManager::set() - key: {$key}, value: " . json_encode($value) . ", session_id: " . $this->getId());
-    }
-
-    public function get(string $key, mixed $default = null): mixed
-    {
-        // Use direct $_SESSION access if Odan methods not available
-        if (method_exists($this->sessionManager, 'get')) {
-            $value = $this->sessionManager->get($key, $default);
-        } else {
-            $value = $_SESSION[$key] ?? $default;
-        }
-
-        // Debug logging
-        error_log("SessionManager::get() - key: {$key}, value: " . json_encode($value) . ", session_id: " . $this->getId());
-
-        return $value;
-    }
-
-    public function remove(string $key): void
-    {
-        // Use direct $_SESSION access if Odan methods not available
-        if (method_exists($this->sessionManager, 'remove')) {
-            $this->sessionManager->remove($key);
-        } else {
-            unset($_SESSION[$key]);
-        }
-    }
-
-    public function setFlash(string $key, mixed $value): void
-    {
-        // Use our flash implementation
-        $this->flash($key, $value);
-    }
-
-    // Note: getFlash is already implemented above with different signature
-
-    /**
-     * @return \ArrayIterator<string, mixed>
-     */
-    public function getIterator(): \ArrayIterator
-    {
-        return new \ArrayIterator($this->all());
-    }
-
-    public function count(): int
-    {
-        return count($this->all());
-    }
-
-    // === MISSING INTERFACE METHODS ===
-
     public function setName(string $name): void
     {
         session_name($name);
@@ -245,7 +156,6 @@ final class SessionManager implements SessionInterface
      */
     public function setCookieParams(array $params): void
     {
-        // Validate and convert params to expected format
         $validParams = [];
 
         if (isset($params['lifetime']) && is_int($params['lifetime'])) {
@@ -267,7 +177,6 @@ final class SessionManager implements SessionInterface
             $validParams['httponly'] = $params['httponly'];
         }
         if (isset($params['samesite']) && is_string($params['samesite'])) {
-            // Validate samesite values
             $allowedSamesite = ['Lax', 'lax', 'None', 'none', 'Strict', 'strict'];
             if (in_array($params['samesite'], $allowedSamesite, true)) {
                 $validParams['samesite'] = $params['samesite'];
@@ -287,25 +196,55 @@ final class SessionManager implements SessionInterface
         return session_status() === PHP_SESSION_ACTIVE;
     }
 
-    // === ODAN SESSION INTERFACE METHODS ===
+    // === Flash Message Methods ===
 
-    /**
-     * Set multiple values at once.
-     *
-     * @param array<string, mixed> $values
-     */
-    public function setValues(array $values): void
+    public function flash(string $key, mixed $value): void
     {
-        foreach ($values as $key => $value) {
-            $this->set($key, $value);
+        if (!$this->isStarted()) {
+            $this->start();
+        }
+        
+        if (is_string($value)) {
+            $this->flashManager->add($key, $value);
         }
     }
 
-    /**
-     * Delete session value (alias for remove).
-     */
-    public function delete(string $key): void
+    public function getFlash(): FlashInterface
     {
-        $this->remove($key);
+        return $this->flashManager;
+    }
+
+    public function getFlashMessage(string $key, mixed $default = null): mixed
+    {
+        $messages = $this->flashManager->get($key);
+        return !empty($messages) ? $messages[0] : $default;
+    }
+
+    public function hasFlash(string $key): bool
+    {
+        return $this->flashManager->has($key);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getFlashBag(): array
+    {
+        return $this->flashManager->all();
+    }
+
+    // === Countable & IteratorAggregate ===
+
+    public function count(): int
+    {
+        return count($this->all());
+    }
+
+    /**
+     * @return \ArrayIterator<string, mixed>
+     */
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->all());
     }
 }

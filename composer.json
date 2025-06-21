@@ -1,9 +1,10 @@
 {
     "name": "responsive-sk/slim4-session",
-    "description": "Enhanced session management for Slim 4 with extended interface and type safety",
+    "description": "Complete session management for Slim 4 with zero dependencies and full type safety",
     "type": "library",
     "license": "MIT",
-    "keywords": ["slim", "session", "php", "middleware", "type-safe"],
+    "version": "2.0.0",
+    "keywords": ["slim", "session", "php", "middleware", "type-safe", "zero-dependencies"],
     "authors": [
         {
             "name": "Responsive SK",
@@ -12,7 +13,6 @@
     ],
     "require": {
         "php": "^8.3",
-        "odan/session": "^6.1",
         "psr/log": "^3.0"
     },
     "require-dev": {

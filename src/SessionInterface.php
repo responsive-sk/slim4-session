@@ -5,13 +5,30 @@ declare(strict_types=1);
 namespace ResponsiveSk\Slim4Session;
 
 /**
- * Extended Session Interface
- * 
- * Extends Odan\Session\SessionInterface with additional methods
- * that are commonly needed but missing from the original interface.
+ * Session Interface
+ *
+ * Complete session management interface without external dependencies.
  */
-interface SessionInterface extends \Odan\Session\SessionInterface
+/**
+ * @extends \IteratorAggregate<string, mixed>
+ */
+interface SessionInterface extends \Countable, \IteratorAggregate
 {
+    /**
+     * Set session value.
+     */
+    public function set(string $key, mixed $value): void;
+
+    /**
+     * Get session value.
+     */
+    public function get(string $key, mixed $default = null): mixed;
+
+    /**
+     * Remove session value.
+     */
+    public function remove(string $key): void;
+
     /**
      * Check if session is started.
      */
@@ -106,9 +123,9 @@ interface SessionInterface extends \Odan\Session\SessionInterface
     public function flash(string $key, mixed $value): void;
 
     /**
-     * Get flash messages interface (compatible with Odan).
+     * Get flash messages interface.
      */
-    public function getFlash(): \Odan\Session\FlashInterface;
+    public function getFlash(): FlashInterface;
 
     /**
      * Get specific flash message.

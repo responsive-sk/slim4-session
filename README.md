@@ -1,14 +1,14 @@
 # 🔐 ResponsiveSk Slim4 Session
 
-Enhanced session management for Slim 4 with extended interface and type safety.
+Complete session management for Slim 4 with zero external dependencies and full type safety.
 
 ## ✨ **Features**
 
-- ✅ **Extended Interface** - Adds missing methods to `Odan\Session\SessionInterface`
+- ✅ **Zero Dependencies** - No external session libraries required
 - ✅ **Type Safety** - Full PHPStan level max compatibility
-- ✅ **Flash Messages** - Built-in flash message support
+- ✅ **Flash Messages** - Built-in flash message support with dedicated interface
 - ✅ **Factory Pattern** - Easy configuration for different environments
-- ✅ **Wrapper Design** - Compatible with existing `odan/session` code
+- ✅ **Native PHP Sessions** - Direct PHP session management with enhanced interface
 - ✅ **Production Ready** - Secure defaults and best practices
 
 ## 📦 **Installation**
@@ -45,7 +45,12 @@ if ($session->has('user_id')) {
 
 // Flash messages
 $session->flash('success', 'Login successful!');
-$message = $session->getFlash('success');
+$message = $session->getFlashMessage('success');
+
+// Advanced flash usage
+$flash = $session->getFlash();
+$flash->add('error', 'Something went wrong');
+$errors = $flash->consume('error'); // Get and clear
 
 // Session management
 $sessionId = $session->getId();
@@ -83,47 +88,52 @@ $session = SessionFactory::create([
 ]);
 ```
 
-## 🔧 **Extended Interface Methods**
+## 🔧 **Complete Interface**
 
-Our `SessionInterface` extends `Odan\Session\SessionInterface` with these additional methods:
+Our `SessionInterface` provides complete session management:
 
 ```php
-interface SessionInterface extends \Odan\Session\SessionInterface
+interface SessionInterface extends \Countable, \IteratorAggregate
 {
+    // Core session methods
+    public function set(string $key, mixed $value): void;
+    public function get(string $key, mixed $default = null): mixed;
+    public function remove(string $key): void;
+    public function has(string $key): bool;
+    public function all(): array;
+    public function clear(): void;
+
     // Session lifecycle
     public function isStarted(): bool;
     public function start(): bool;
     public function destroy(): bool;
-    
+
     // Session ID management
     public function getId(): ?string;
     public function regenerateId(): bool;
     public function getName(): string;
-    
-    // Data management
-    public function has(string $key): bool;
-    public function all(): array;
-    public function clear(): void;
-    
+    public function setName(string $name): void;
+
     // Flash messages
     public function flash(string $key, mixed $value): void;
-    public function getFlash(string $key, mixed $default = null): mixed;
+    public function getFlash(): FlashInterface;
+    public function getFlashMessage(string $key, mixed $default = null): mixed;
     public function hasFlash(string $key): bool;
 }
 ```
 
 ## 🏗️ **Architecture**
 
-### **Wrapper Pattern**
+### **Native Implementation**
 
-The package uses a wrapper pattern around `odan/session`:
+The package provides a complete native PHP session implementation:
 
 ```
 ResponsiveSk\Slim4Session\SessionManager
-    ↓ wraps
-Odan\Session\SessionManagerInterface
     ↓ implements
-Odan\Session\PhpSession
+ResponsiveSk\Slim4Session\SessionInterface
+    ↓ uses
+Native PHP $_SESSION + FlashManager
 ```
 
 ### **Factory Pattern**
@@ -133,7 +143,7 @@ SessionFactory::create()                    // Default config
 SessionFactory::createForProduction()      // Production config
 SessionFactory::createForDevelopment()     // Development config
 SessionFactory::createForTesting()         // Testing config
-SessionFactory::createWithOdanSession()    // Custom Odan session
+SessionFactory::createWithConfig()         // Custom config
 ```
 
 ## 🔒 **Security Features**
@@ -224,7 +234,7 @@ $hasKey = $session->has('key');                // bool
 
 - ✅ **PHP 8.3+**
 - ✅ **Slim 4**
-- ✅ **odan/session ^6.1**
+- ✅ **Zero external dependencies**
 - ✅ **PHPStan level max**
 
 ## 📄 **License**

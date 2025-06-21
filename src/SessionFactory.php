@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace ResponsiveSk\Slim4Session;
 
-use Odan\Session\PhpSession;
-use Odan\Session\SessionManagerInterface;
-
 /**
  * Session Factory
- * 
+ *
  * Factory for creating session instances with proper configuration.
  */
 final class SessionFactory
@@ -51,19 +48,18 @@ final class SessionFactory
             }
         }
 
-        // Create Odan session manager
-        $odanSession = new PhpSession();
-
-        // Wrap in our extended session manager
-        return new SessionManager($odanSession);
+        // Create our session manager
+        return new SessionManager();
     }
 
     /**
-     * Create session manager with custom Odan session.
+     * Create session manager with custom configuration.
+     *
+     * @param array<string, mixed> $customConfig
      */
-    public static function createWithOdanSession(SessionManagerInterface $odanSession): SessionInterface
+    public static function createWithConfig(array $customConfig): SessionInterface
     {
-        return new SessionManager($odanSession);
+        return self::create($customConfig);
     }
 
     /**
