@@ -10,6 +10,8 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use ResponsiveSk\Slim4Session\SessionInterface;
 use ResponsiveSk\Slim4Session\Exceptions\SessionException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * PSR-15 Session Middleware for Slim 4.
@@ -18,7 +20,8 @@ final class SessionMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly SessionInterface $session,
-        private readonly bool $autoStart = true
+        private readonly bool $autoStart = true,
+        private readonly LoggerInterface $logger = new NullLogger()
     ) {
     }
 
@@ -32,7 +35,10 @@ final class SessionMiddleware implements MiddlewareInterface
                 $this->session->start();
             } catch (SessionException $e) {
                 // Log error but continue - session is optional
-                error_log('Session start failed: ' . $e->getMessage());
+                $this->logger->warning('Session start failed in middleware', [
+                    'error' => $e->getMessage(),
+                    'request_uri' => $request->getUri()->getPath()
+                ]);
             }
         }
 

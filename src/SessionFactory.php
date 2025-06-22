@@ -31,6 +31,9 @@ final class SessionFactory
 
         $config = array_merge($defaultConfig, $config);
 
+        // Validate configuration
+        self::validateConfig($config);
+
         // Configure PHP session settings
         foreach ($config as $key => $value) {
             if (str_starts_with($key, 'cookie_') || in_array($key, ['name', 'cache_expire', 'use_cookies', 'use_only_cookies', 'use_strict_mode'])) {
@@ -113,5 +116,41 @@ final class SessionFactory
         $config = array_merge($developmentConfig, $config);
 
         return self::create($config);
+    }
+
+    /**
+     * Validate session configuration.
+     *
+     * @param array<string, mixed> $config
+     * @throws \InvalidArgumentException
+     */
+    private static function validateConfig(array $config): void
+    {
+        // Validate session name
+        if (isset($config['name']) && !is_string($config['name'])) {
+            throw new \InvalidArgumentException('Session name must be a string');
+        }
+
+        if (isset($config['name']) && !preg_match('/^[a-zA-Z0-9_]+$/', $config['name'])) {
+            throw new \InvalidArgumentException('Session name contains invalid characters');
+        }
+
+        // Validate SameSite values
+        if (isset($config['cookie_samesite'])) {
+            $validSameSite = ['Strict', 'Lax', 'None'];
+            if (!in_array($config['cookie_samesite'], $validSameSite, true)) {
+                throw new \InvalidArgumentException('Invalid SameSite value. Must be: Strict, Lax, or None');
+            }
+        }
+
+        // Validate cache_expire
+        if (isset($config['cache_expire']) && (!is_int($config['cache_expire']) || $config['cache_expire'] < 0)) {
+            throw new \InvalidArgumentException('cache_expire must be a non-negative integer');
+        }
+
+        // Security warning for insecure settings
+        if (isset($_SERVER['HTTPS']) && isset($config['cookie_secure']) && !$config['cookie_secure']) {
+            error_log('WARNING: Session cookie_secure is false on HTTPS connection');
+        }
     }
 }

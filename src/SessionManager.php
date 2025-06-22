@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ResponsiveSk\Slim4Session;
 
+use ResponsiveSk\Slim4Session\Exceptions\SessionException;
+
 /**
  * Session Manager
  * 
@@ -80,7 +82,17 @@ final class SessionManager implements SessionInterface
         if ($this->isStarted()) {
             return true;
         }
-        return session_start();
+
+        if (headers_sent($file, $line)) {
+            throw SessionException::cannotStart("Headers already sent in {$file} on line {$line}");
+        }
+
+        $result = session_start();
+        if (!$result) {
+            throw SessionException::cannotStart('Failed to start session');
+        }
+
+        return $result;
     }
 
     public function destroy(): bool
@@ -108,7 +120,12 @@ final class SessionManager implements SessionInterface
             }
         }
 
-        return session_destroy();
+        $result = session_destroy();
+        if (!$result) {
+            throw SessionException::cannotDestroy('Session destroy failed');
+        }
+
+        return $result;
     }
 
     public function getId(): ?string
@@ -130,6 +147,9 @@ final class SessionManager implements SessionInterface
 
     public function setName(string $name): void
     {
+        if ($this->isStarted()) {
+            throw SessionException::alreadyStarted();
+        }
         session_name($name);
     }
 
@@ -210,6 +230,16 @@ final class SessionManager implements SessionInterface
     }
 
     public function getFlash(): FlashInterface
+    {
+        return $this->flashManager;
+    }
+
+    /**
+     * Get flash manager for direct access.
+     *
+     * Allows usage like: $session->flash()->add('success', 'Message')
+     */
+    public function flash(): FlashInterface
     {
         return $this->flashManager;
     }
