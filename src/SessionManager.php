@@ -234,16 +234,6 @@ final class SessionManager implements SessionInterface
         return $this->flashManager;
     }
 
-    /**
-     * Get flash manager for direct access.
-     *
-     * Allows usage like: $session->flash()->add('success', 'Message')
-     */
-    public function flash(): FlashInterface
-    {
-        return $this->flashManager;
-    }
-
     public function getFlashMessage(string $key, mixed $default = null): mixed
     {
         $messages = $this->flashManager->get($key);
