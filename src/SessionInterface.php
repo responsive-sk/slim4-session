@@ -16,16 +16,22 @@ interface SessionInterface extends \Countable, \IteratorAggregate
 {
     /**
      * Set session value.
+     *
+     * @throws \ResponsiveSk\Slim4Session\Exceptions\SessionException
      */
     public function set(string $key, mixed $value): void;
 
     /**
      * Get session value.
+     *
+     * @throws \ResponsiveSk\Slim4Session\Exceptions\SessionKeyNotFoundException
      */
     public function get(string $key, mixed $default = null): mixed;
 
     /**
      * Remove session value.
+     *
+     * @throws \ResponsiveSk\Slim4Session\Exceptions\SessionException
      */
     public function remove(string $key): void;
 
@@ -36,11 +42,15 @@ interface SessionInterface extends \Countable, \IteratorAggregate
 
     /**
      * Start the session.
+     *
+     * @throws \ResponsiveSk\Slim4Session\Exceptions\SessionException
      */
     public function start(): bool;
 
     /**
      * Destroy the session.
+     *
+     * @throws \ResponsiveSk\Slim4Session\Exceptions\SessionException
      */
     public function destroy(): bool;
 

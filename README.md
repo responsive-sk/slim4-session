@@ -5,10 +5,13 @@ Complete session management for Slim 4 with zero external dependencies and full 
 ## ✨ **Features**
 
 - ✅ **Zero Dependencies** - No external session libraries required
-- ✅ **Type Safety** - Full PHPStan level max compatibility
+- ✅ **Type Safety** - Full PHPStan level max compatibility with @throws annotations
 - ✅ **Flash Messages** - Built-in flash message support with dedicated interface
 - ✅ **Factory Pattern** - Easy configuration for different environments
 - ✅ **Native PHP Sessions** - Direct PHP session management with enhanced interface
+- ✅ **Custom Storage Engines** - Redis, Database, and custom storage support
+- ✅ **PSR-15 Middleware** - Ready-to-use middleware for Slim 4
+- ✅ **Auto-Refresh** - Automatic session lifetime extension on user activity
 - ✅ **Production Ready** - Secure defaults and best practices
 
 ## 📦 **Installation**
