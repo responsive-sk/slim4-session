@@ -1,26 +1,26 @@
-# 🔐 ResponsiveSk Slim4 Session
+# ResponsiveSk Slim4 Session
 
 Complete session management for Slim 4 with zero external dependencies and full type safety.
 
-## ✨ **Features**
+## **Features**
 
-- ✅ **Zero Dependencies** - No external session libraries required
-- ✅ **Type Safety** - Full PHPStan level max compatibility with @throws annotations
-- ✅ **Flash Messages** - Built-in flash message support with dedicated interface
-- ✅ **Factory Pattern** - Easy configuration for different environments
-- ✅ **Native PHP Sessions** - Direct PHP session management with enhanced interface
-- ✅ **Custom Storage Engines** - Redis, Database, and custom storage support
-- ✅ **PSR-15 Middleware** - Ready-to-use middleware for Slim 4
-- ✅ **Auto-Refresh** - Automatic session lifetime extension on user activity
-- ✅ **Production Ready** - Secure defaults and best practices
+- **Zero Dependencies** - No external session libraries required
+- **Type Safety** - Full PHPStan level max compatibility with @throws annotations
+- **Flash Messages** - Built-in flash message support with dedicated interface
+- **Factory Pattern** - Easy configuration for different environments
+- **Native PHP Sessions** - Direct PHP session management with enhanced interface
+- **Custom Storage Engines** - Redis, Database, and custom storage support
+- **PSR-15 Middleware** - Ready-to-use middleware for Slim 4
+- **Auto-Refresh** - Automatic session lifetime extension on user activity
+- **Production Ready** - Secure defaults and best practices
 
-## 📦 **Installation**
+## **Installation**
 
 ```bash
 composer require responsive-sk/slim4-session
 ```
 
-## 🚀 **Quick Start**
+## **Quick Start**
 
 ### **Basic Usage**
 
@@ -91,7 +91,7 @@ $session = SessionFactory::create([
 ]);
 ```
 
-## 🔧 **Complete Interface**
+## **Complete Interface**
 
 Our `SessionInterface` provides complete session management:
 
@@ -125,7 +125,7 @@ interface SessionInterface extends \Countable, \IteratorAggregate
 }
 ```
 
-## 🏗️ **Architecture**
+## **Architecture**
 
 ### **Native Implementation**
 
@@ -149,15 +149,15 @@ SessionFactory::createForTesting()         // Testing config
 SessionFactory::createWithConfig()         // Custom config
 ```
 
-## 🔒 **Security Features**
+## **Security Features**
 
 ### **Secure Defaults**
 
-- ✅ **HttpOnly cookies** - Prevents XSS attacks
-- ✅ **Secure cookies** - HTTPS only in production
-- ✅ **SameSite protection** - CSRF protection
-- ✅ **Strict mode** - Prevents session fixation
-- ✅ **Session regeneration** - Built-in ID regeneration
+- **HttpOnly cookies** - Prevents XSS attacks
+- **Secure cookies** - HTTPS only in production
+- **SameSite protection** - CSRF protection
+- **Strict mode** - Prevents session fixation
+- **Session regeneration** - Built-in ID regeneration
 
 ### **Production Configuration**
 
@@ -170,7 +170,7 @@ $session = SessionFactory::createForProduction([
 ]);
 ```
 
-## 🧪 **Testing**
+## **Testing**
 
 ```php
 // Create test session (no cookies)
@@ -181,7 +181,7 @@ $session->set('test_key', 'test_value');
 $this->assertEquals('test_value', $session->get('test_key'));
 ```
 
-## 🎯 **Integration with Slim 4**
+## **Integration with Slim 4**
 
 ### **DI Container Setup**
 
@@ -218,7 +218,7 @@ class SessionMiddleware
 }
 ```
 
-## 📊 **Type Safety**
+## **Type Safety**
 
 Full PHPStan level max compatibility:
 
@@ -233,14 +233,14 @@ $data = $session->all();                       // array<string, mixed>
 $hasKey = $session->has('key');                // bool
 ```
 
-## 🤝 **Compatibility**
+## **Compatibility**
 
-- ✅ **PHP 8.3+**
-- ✅ **Slim 4**
-- ✅ **Zero external dependencies**
-- ✅ **PHPStan level max**
+- **PHP 8.3+**
+- **Slim 4**
+- **Zero external dependencies**
+- **PHPStan level max**
 
-## 📄 **License**
+## **License**
 
 MIT License. See [LICENSE](LICENSE) for details.
 
