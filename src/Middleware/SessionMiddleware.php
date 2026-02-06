@@ -26,13 +26,30 @@ final class SessionMiddleware implements MiddlewareInterface
     }
 
     public function process(
-        ServerRequestInterface $request, 
+        ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ): ResponseInterface {
         // Auto-start session if enabled
         if ($this->autoStart && !$this->session->isStarted()) {
             try {
                 $this->session->start();
+
+                // Session Migration: Initialize default values if missing
+                if (!$this->session->has('last_activity')) {
+                    $now = time();
+                    $this->session->set('last_activity', $now);
+                    $this->session->set('created_at', $now);
+
+                    // Generate new CSRF token if missing
+                    if (!$this->session->has('csrf_token')) {
+                        $this->session->set('csrf_token', bin2hex(random_bytes(32)));
+                    }
+
+                    // Bind to User-Agent
+                    if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                        $this->session->set('user_agent_hash', hash('sha256', $_SERVER['HTTP_USER_AGENT']));
+                    }
+                }
             } catch (SessionException $e) {
                 // Log error but continue - session is optional
                 $this->logger->warning('Session start failed in middleware', [
