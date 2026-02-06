@@ -3,7 +3,11 @@
     "description": "Complete session management for Slim 4 with zero dependencies and full type safety",
     "type": "library",
     "license": "MIT",
+<<<<<<< HEAD
     "version": "2.2.5",
+=======
+    "version": "2.2.4",
+>>>>>>> cfbc35104084f5fe389932d6639c7df0e7a10762
     "keywords": ["slim", "session", "php", "middleware", "type-safe", "zero-dependencies"],
     "authors": [
         {
