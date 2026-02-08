@@ -3,8 +3,15 @@
     "description": "Complete session management for Slim 4 with zero dependencies and full type safety",
     "type": "library",
     "license": "MIT",
-    "version": "2.2.5",
-    "keywords": ["slim", "session", "php", "middleware", "type-safe", "zero-dependencies"],
+    "version": "2.3.0",
+    "keywords": [
+        "slim",
+        "session",
+        "php",
+        "middleware",
+        "type-safe",
+        "zero-dependencies"
+    ],
     "authors": [
         {
             "name": "Responsive SK",
@@ -16,9 +23,6 @@
         "psr/log": "^3.0",
         "psr/http-message": "^1.0|^2.0",
         "psr/http-server-middleware": "^1.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^10.0"
     },
     "suggest": {
         "ext-redis": "For Redis session storage support",
