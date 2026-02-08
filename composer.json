@@ -3,7 +3,7 @@
     "description": "Complete session management for Slim 4 with zero dependencies and full type safety",
     "type": "library",
     "license": "MIT",
-    "version": "2.3.1",
+    "version": "2.3.2",
     "keywords": [
         "slim",
         "session",

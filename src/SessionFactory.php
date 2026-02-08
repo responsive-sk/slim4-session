@@ -127,12 +127,13 @@ final class SessionFactory
     private static function validateConfig(array $config): void
     {
         // Validate session name
-        if (isset($config['name']) && !is_string($config['name'])) {
-            throw new \InvalidArgumentException('Session name must be a string');
-        }
-
-        if (isset($config['name']) && !preg_match('/^[a-zA-Z0-9_]+$/', $config['name'])) {
-            throw new \InvalidArgumentException('Session name contains invalid characters');
+        if (isset($config['name'])) {
+            if (!is_string($config['name'])) {
+                throw new \InvalidArgumentException('Session name must be a string');
+            }
+            if (!preg_match('/^[a-zA-Z0-9_]+$/', $config['name'])) {
+                throw new \InvalidArgumentException('Session name contains invalid characters');
+            }
         }
 
         // Validate SameSite values

@@ -14,7 +14,10 @@ final class RedisStorage implements StorageInterface
     private bool $started = false;
     private string $sessionId = '';
     private string $sessionName = 'PHPSESSID';
+
+    /** @var array<string, mixed> */
     private array $data = [];
+    /** @var array<string, mixed> */
     private array $cookieParams = [];
 
     public function __construct(
@@ -39,9 +42,12 @@ final class RedisStorage implements StorageInterface
         // Load data from Redis
         $key = $this->prefix . $this->sessionId;
         $serializedData = $this->redis->get($key);
-        
-        if ($serializedData !== false) {
-            $this->data = unserialize($serializedData) ?: [];
+
+        if (is_string($serializedData)) {
+            $unserialized = unserialize($serializedData);
+            /** @var array<string, mixed> $data */
+            $data = is_array($unserialized) ? $unserialized : [];
+            $this->data = $data;
         } else {
             $this->data = [];
         }
@@ -111,7 +117,7 @@ final class RedisStorage implements StorageInterface
         if (!$this->started) {
             throw SessionException::notStarted();
         }
-        
+
         $this->data[$key] = $value;
         $this->save();
     }
@@ -126,11 +132,14 @@ final class RedisStorage implements StorageInterface
         if (!$this->started) {
             throw SessionException::notStarted();
         }
-        
+
         unset($this->data[$key]);
         $this->save();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function all(): array
     {
         return $this->data;
@@ -141,7 +150,7 @@ final class RedisStorage implements StorageInterface
         if (!$this->started) {
             throw SessionException::notStarted();
         }
-        
+
         $this->data = [];
         $this->save();
     }
@@ -154,14 +163,17 @@ final class RedisStorage implements StorageInterface
 
         $key = $this->prefix . $this->sessionId;
         $this->redis->del($key);
-        
+
         $this->data = [];
         $this->started = false;
         $this->sessionId = '';
-        
+
         return true;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getCookieParams(): array
     {
         return $this->cookieParams;
@@ -185,7 +197,7 @@ final class RedisStorage implements StorageInterface
 
         $key = $this->prefix . $this->sessionId;
         $serializedData = serialize($this->data);
-        
+
         $this->redis->setex($key, $this->ttl, $serializedData);
     }
 

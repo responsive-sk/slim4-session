@@ -46,8 +46,11 @@ final class SessionMiddleware implements MiddlewareInterface
             try {
                 // 1. Session Binding Security (User-Agent)
                 if ($this->session->has('user_agent_hash')) {
-                    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-                    if ($this->session->get('user_agent_hash') !== hash('sha256', $userAgent)) {
+                    /** @phpstan-ignore cast.string */
+                    $userAgent = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+                    /** @var string $uaHash */
+                    $uaHash = $this->session->get('user_agent_hash');
+                    if ($uaHash !== hash('sha256', $userAgent)) {
                         $this->session->destroy();
                         $this->logger->warning('Session hijacked attempt detected (User-Agent mismatch)');
                         // Depending on policy, we might want to restart a fresh session or just fail
@@ -59,6 +62,7 @@ final class SessionMiddleware implements MiddlewareInterface
                 // 2. Timeout Management (Last Activity)
                 $now = time();
                 if ($this->session->has('last_activity')) {
+                    /** @var int $lastActivity */
                     $lastActivity = $this->session->get('last_activity');
                     if (($now - $lastActivity) > $this->timeout) {
                         $this->session->destroy();
@@ -79,13 +83,16 @@ final class SessionMiddleware implements MiddlewareInterface
                     }
 
                     if (isset($_SERVER['HTTP_USER_AGENT'])) {
-                        $this->session->set('user_agent_hash', hash('sha256', $_SERVER['HTTP_USER_AGENT']));
+                        /** @phpstan-ignore cast.string */
+                        $this->session->set('user_agent_hash', hash('sha256', (string) $_SERVER['HTTP_USER_AGENT']));
                     }
                 } else {
                     // Update last activity
                     $this->session->set('last_activity', $now);
 
                     // Check if regeneration is needed
+                    // Check if regeneration is needed
+                    /** @var int $lastRegenerated */
                     $lastRegenerated = $this->session->get('last_regenerated', $this->session->get('created_at'));
                     if (($now - $lastRegenerated) > $this->regenerateInterval) {
                         $this->session->regenerateId();

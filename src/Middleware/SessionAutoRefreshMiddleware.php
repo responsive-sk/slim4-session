@@ -28,7 +28,7 @@ final class SessionAutoRefreshMiddleware implements MiddlewareInterface
     }
 
     public function process(
-        ServerRequestInterface $request, 
+        ServerRequestInterface $request,
         RequestHandlerInterface $handler
     ): ResponseInterface {
         if ($this->session->isStarted()) {
@@ -41,16 +41,17 @@ final class SessionAutoRefreshMiddleware implements MiddlewareInterface
     private function refreshSessionIfNeeded(): void
     {
         $now = time();
+        /** @var int $lastActivity */
         $lastActivity = $this->session->get(self::LAST_ACTIVITY_KEY, 0);
-        
+
         // Check if refresh threshold is exceeded
         if (($now - $lastActivity) > $this->refreshThreshold) {
             // Regenerate session ID for security
             $this->session->regenerateId();
-            
+
             // Update last activity timestamp
             $this->session->set(self::LAST_ACTIVITY_KEY, $now);
-            
+
             // Extend cookie lifetime
             $this->extendSessionCookie();
         }
@@ -60,21 +61,28 @@ final class SessionAutoRefreshMiddleware implements MiddlewareInterface
     {
         $params = $this->session->getCookieParams();
         $params['lifetime'] = time() + $this->extendBy;
-        
+
         $this->session->setCookieParams($params);
-        
+
         // Set the cookie with new expiration
-        if ($this->session->getName() && $this->session->getId()) {
+        $sessionName = $this->session->getName();
+        $sessionId = $this->session->getId();
+
+        if ($sessionName !== '' && $sessionId !== null) {
             setcookie(
-                $this->session->getName(),
-                $this->session->getId(),
+                $sessionName,
+                $sessionId,
+                /** @phpstan-ignore argument.type */
                 [
-                    'expires' => $params['lifetime'],
-                    'path' => $params['path'] ?? '/',
-                    'domain' => $params['domain'] ?? '',
-                    'secure' => $params['secure'] ?? false,
-                    'httponly' => $params['httponly'] ?? true,
-                    'samesite' => $params['samesite'] ?? 'Lax'
+                    'expires' => (int) $params['lifetime'],
+                    /** @phpstan-ignore cast.string */
+                    'path' => (string) ($params['path'] ?? '/'),
+                    /** @phpstan-ignore cast.string */
+                    'domain' => (string) ($params['domain'] ?? ''),
+                    'secure' => (bool) ($params['secure'] ?? false),
+                    'httponly' => (bool) ($params['httponly'] ?? true),
+                    /** @phpstan-ignore cast.string */
+                    'samesite' => (string) ($params['samesite'] ?? 'Lax')
                 ]
             );
         }
