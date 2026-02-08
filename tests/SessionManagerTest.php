@@ -51,14 +51,14 @@ class SessionManagerTest extends TestCase
     {
         $this->sessionManager->start();
         $this->sessionManager->set('test_key', 'test_value');
-        
+
         $this->assertEquals('test_value', $this->sessionManager->get('test_key'));
     }
 
     public function testGetWithDefault(): void
     {
         $this->sessionManager->start();
-        
+
         $this->assertEquals('default', $this->sessionManager->get('nonexistent', 'default'));
     }
 
@@ -66,7 +66,7 @@ class SessionManagerTest extends TestCase
     {
         $this->sessionManager->start();
         $this->sessionManager->set('existing_key', 'value');
-        
+
         $this->assertTrue($this->sessionManager->has('existing_key'));
         $this->assertFalse($this->sessionManager->has('nonexistent_key'));
     }
@@ -75,11 +75,11 @@ class SessionManagerTest extends TestCase
     {
         $this->sessionManager->start();
         $this->sessionManager->set('key_to_remove', 'value');
-        
+
         $this->assertTrue($this->sessionManager->has('key_to_remove'));
-        
+
         $this->sessionManager->remove('key_to_remove');
-        
+
         $this->assertFalse($this->sessionManager->has('key_to_remove'));
     }
 
@@ -88,9 +88,9 @@ class SessionManagerTest extends TestCase
         $this->sessionManager->start();
         $this->sessionManager->set('key1', 'value1');
         $this->sessionManager->set('key2', 'value2');
-        
+
         $this->sessionManager->clear();
-        
+
         $this->assertFalse($this->sessionManager->has('key1'));
         $this->assertFalse($this->sessionManager->has('key2'));
     }
@@ -100,9 +100,9 @@ class SessionManagerTest extends TestCase
         $this->sessionManager->start();
         $this->sessionManager->set('key1', 'value1');
         $this->sessionManager->set('key2', 'value2');
-        
+
         $data = $this->sessionManager->all();
-        
+
         $this->assertArrayHasKey('key1', $data);
         $this->assertArrayHasKey('key2', $data);
         $this->assertEquals('value1', $data['key1']);
@@ -113,10 +113,10 @@ class SessionManagerTest extends TestCase
     {
         $this->sessionManager->start();
         $oldId = $this->sessionManager->getId();
-        
+
         $result = $this->sessionManager->regenerateId();
         $newId = $this->sessionManager->getId();
-        
+
         $this->assertTrue($result);
         $this->assertNotEquals($oldId, $newId);
     }
@@ -124,13 +124,13 @@ class SessionManagerTest extends TestCase
     public function testFlashInterface(): void
     {
         $this->sessionManager->start();
-        
-        $flash = $this->sessionManager->flash();
+
+        $flash = $this->sessionManager->getFlash();
         $this->assertInstanceOf(\ResponsiveSk\Slim4Session\FlashInterface::class, $flash);
-        
+
         $flash->add('success', 'Test message');
         $this->assertTrue($flash->has('success'));
-        
+
         $messages = $flash->get('success');
         $this->assertContains('Test message', $messages);
     }
@@ -139,14 +139,14 @@ class SessionManagerTest extends TestCase
     {
         $this->sessionManager->setName('custom_session');
         $this->sessionManager->start();
-        
+
         $this->assertEquals('custom_session', $this->sessionManager->getName());
     }
 
     public function testSetNameAfterStartThrowsException(): void
     {
         $this->sessionManager->start();
-        
+
         $this->expectException(SessionException::class);
         $this->sessionManager->setName('new_name');
     }
@@ -155,9 +155,9 @@ class SessionManagerTest extends TestCase
     {
         $this->sessionManager->start();
         $this->sessionManager->set('test', 'value');
-        
+
         $result = $this->sessionManager->destroy();
-        
+
         $this->assertTrue($result);
         $this->assertFalse($this->sessionManager->isStarted());
     }
